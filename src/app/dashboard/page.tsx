@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import ChartOverview from '@/components/chart'
 import ChartMetas from '@/components/chart/meta'
 import ChartCrescimento from '@/components/chart/crescimento'
+import LoadingScreen from '@/components/LoadingScreen'
 
 
 import {
@@ -223,7 +224,7 @@ export default function Dashboard() {
   }, [filteredSales, selectedBranch])
   
 
-  if (loading) return <p className="p-4 text-gray-700">Carregando...</p>
+  if (loading) return <LoadingScreen />
   if (error) return <p className="p-4 text-red-600">{error}</p>
 
   return (
