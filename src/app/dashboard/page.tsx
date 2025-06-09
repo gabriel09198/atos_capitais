@@ -225,9 +225,6 @@ export default function Dashboard() {
         const date = new Date(sale.date)
         return date.getUTCFullYear() === currentYear && date.getUTCMonth() === monthIndex
       })
-      vendasMesAtual.forEach(sale => {
-  console.log('Data original:', sale.date, 'Convertida:', new Date(sale.date))
-})
       const vendasMesAnterior = filteredSales.filter(sale => {
         const date = new Date(sale.date)
         return date.getFullYear() === currentYear - 1 && date.getMonth() === monthIndex
@@ -273,11 +270,6 @@ export default function Dashboard() {
         crescimento = ((previsao - valorVendidoAnterior) / valorVendidoAnterior) * 100
       }
       if (monthIndex === currentMonth) {
-  console.log('Total vendido até hoje:', valorVendidoAtual)
-  console.log('Dias com venda:', vendasMesAtual)
-  console.log('Média diária:', mediaDiariaAtual)
-  console.log('Dias no mês:', daysInMonth)
-  console.log('Previsão:', previsao)
 }
 
       previsoes.push({
@@ -292,8 +284,7 @@ export default function Dashboard() {
     setMesSelecionadoPrevisao(allMonths[currentMonth])
     
   }, [filteredSales, selectedYear])
-
-
+  
   useEffect(() => {
     setLoadingChart(true)
     const soma = filteredSales.reduce((acc: number, venda: any) => acc + Number(venda.value), 0)
