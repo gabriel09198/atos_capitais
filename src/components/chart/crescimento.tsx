@@ -22,7 +22,7 @@ import { useMemo } from 'react'
 
 interface CrescimentoData {
   month: string
-  crescimento: number // Crescimento das vendas (%)
+  crescimento: number 
 }
 
 interface ChartCrescimentoProps {
@@ -75,7 +75,6 @@ export default function ChartCrescimento({ data }: ChartCrescimentoProps) {
                 formatter={(value: any, name: any) => [`${value.toFixed(2)}%`, 'Crescimento Vendas']}
                 labelFormatter={(label) => `Mês: ${label}`}
               />
-              {/* Linha para crescimento das vendas */}
               <Line
                 type="monotone"
                 dataKey="crescimento"

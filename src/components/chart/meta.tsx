@@ -59,10 +59,7 @@ export default function ChartMetas({ data, year }: ChartMetasProps) {
                 tickLine={false}
               />
               <Tooltip
-                formatter={(value: any, name: string) => [
-                  `R$ ${Number(value).toLocaleString('pt-BR')}`,
-                  name === 'atual' ? `Valor (${labelAno})` : 'Meta (105%)'
-                ]}
+                formatter={(value: any) => `R$ ${Number(value).toLocaleString('pt-BR')}`}
                 labelFormatter={(label) => `Mês: ${label}`}
               />
               <Legend />

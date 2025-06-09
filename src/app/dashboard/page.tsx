@@ -44,6 +44,7 @@ export default function Dashboard() {
   const [totalVendas, setTotalVendas] = useState(0)
   const [totalEmpresas, setTotalEmpresas] = useState(0)
   const [vendaDia, setVendaDia] = useState(0)
+  const [dataUltimaVenda, setDataUltimaVenda] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadingChart, setLoadingChart] = useState(false)
   const [error, setError] = useState('')
@@ -119,14 +120,17 @@ export default function Dashboard() {
     return
   }
 
-  const datas = filteredByBranch.map(sale => sale.date)
-  const ultimaData = datas.sort((a, b) => (a > b ? -1 : 1))[0]
+  const hoje = new Date()
+  const ano = hoje.getFullYear()
+  const mes = String(hoje.getMonth() + 1).padStart(2, '0')
+  const dia = String(hoje.getDate()).padStart(2, '0')
+  const dataHoje = `${ano}-${mes}-${dia}`
 
-  const vendaHoje = filteredByBranch
-    .filter(sale => sale.date === ultimaData)
-    .reduce((acc, venda) => acc + Number(venda.value), 0)
+  const vendasHoje = filteredByBranch.filter(sale => sale.date.startsWith(dataHoje))
+  const somaHoje = vendasHoje.reduce((acc, venda) => acc + Number(venda.value), 0)
 
-  setVendaDia(vendaHoje)
+  setVendaDia(somaHoje)
+  setDataUltimaVenda(`${dia}/${mes}/${ano}`)
 }, [filteredByBranch])
 
   const filteredSales = useMemo(() => {
@@ -155,7 +159,7 @@ export default function Dashboard() {
     })
     return months
   }
-
+  
   const chartDataVendas = useMemo(() => {
     const current = groupSalesByMonth(filteredSales)
     const previous = groupSalesByMonth(previousSales)
@@ -182,37 +186,112 @@ export default function Dashboard() {
     const current = groupSalesByMonth(filteredSales)
     const previous = groupSalesByMonth(previousSales)
 
-    return allMonths.map(month => {
-      const atual = current[month] || 0
-      const anterior = previous[month] || 0
-      let crescimento = 0
-      if (anterior > 0) {
-        crescimento = ((atual - anterior) / anterior) * 100
-      }
-      return {
-        month: month.charAt(0).toUpperCase() + month.slice(1),
-        crescimento: parseFloat(crescimento.toFixed(2))
-      }
-    })
+    const dataAtual = new Date()
+    const mesAtualIndex = dataAtual.getMonth()
+
+    return allMonths
+      .slice(0, mesAtualIndex + 1) 
+      .map((month, index) => {
+        const atual = current[month] || 0
+        const anterior = previous[month] || 0
+        let crescimento = 0
+        if (anterior > 0) {
+          crescimento = ((atual - anterior) / anterior) * 100
+        }
+        return {
+          month: month.charAt(0).toUpperCase() + month.slice(1),
+          crescimento: parseFloat(crescimento.toFixed(2))
+        }
+      })
   }, [filteredSales, previousSales])
 
-    useEffect(() => {
-    const current = groupSalesByMonth(filteredSales)
-    const previous = groupSalesByMonth(previousSales)
+  useEffect(() => {
+    if (selectedYear === 'all') {
+      setPrevisaoVendas([])
+      return
+    }
 
-    const previsoes: PrevisaoVendas[] = allMonths.map(month => {
-      const atual = current[month] || 0
-      const anterior = previous[month] || 0
-      const crescimentoEsperado = anterior > 0 ? ((atual - anterior) / anterior) * 100 : 0
-      return {
-        mes: month,
-        valor: atual,
-        crescimentoEsperado: parseFloat(crescimentoEsperado.toFixed(2))
+    const currentYear = parseInt(selectedYear)
+    const today = new Date()
+    const currentMonth = today.getMonth()
+    const currentDay = today.getDate()
+
+    const previsoes: PrevisaoVendas[] = []
+
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      const daysInMonth = new Date(currentYear, monthIndex + 1, 0).getDate()
+
+      const vendasMesAtual = filteredSales.filter(sale => {
+        const date = new Date(sale.date)
+        return date.getUTCFullYear() === currentYear && date.getUTCMonth() === monthIndex
+      })
+      vendasMesAtual.forEach(sale => {
+  console.log('Data original:', sale.date, 'Convertida:', new Date(sale.date))
+})
+      const vendasMesAnterior = filteredSales.filter(sale => {
+        const date = new Date(sale.date)
+        return date.getFullYear() === currentYear - 1 && date.getMonth() === monthIndex
+      })
+
+      let valorVendidoAtual = 0
+      if (monthIndex < currentMonth) {
+        valorVendidoAtual = vendasMesAtual.reduce((acc, v) => acc + Number(v.value), 0)
+      } else if (monthIndex === currentMonth) {
+        const vendasAteHoje = vendasMesAtual.filter(sale => {
+          const dia = new Date(sale.date).getUTCDate()
+          return dia <= currentDay
+        })
+        valorVendidoAtual = vendasAteHoje.reduce((acc, v) => acc + Math.round(Number(v.value) * 100) / 100, 0)
+      } else {
+        valorVendidoAtual = 0
       }
-    })
+        let mediaDiariaAtual = 0
+
+        if (valorVendidoAtual > 0) {
+          if (monthIndex === currentMonth) {
+            const diasComVenda = new Set(
+              vendasMesAtual
+                .filter(sale => {
+                  const date = new Date(sale.date)
+                  return date.getUTCDate() <= currentDay
+                })
+                .map(sale => new Date(sale.date).getUTCDate())
+            )
+
+            mediaDiariaAtual = valorVendidoAtual / diasComVenda.size
+          } else {
+            mediaDiariaAtual = valorVendidoAtual / daysInMonth
+          }
+        }
+        
+      const previsao = mediaDiariaAtual * daysInMonth
+
+      const valorVendidoAnterior = vendasMesAnterior.reduce((acc, v) => acc + Number(v.value), 0)
+
+      let crescimento = 0
+      if (valorVendidoAnterior > 0) {
+        crescimento = ((previsao - valorVendidoAnterior) / valorVendidoAnterior) * 100
+      }
+      if (monthIndex === currentMonth) {
+  console.log('Total vendido até hoje:', valorVendidoAtual)
+  console.log('Dias com venda:', vendasMesAtual)
+  console.log('Média diária:', mediaDiariaAtual)
+  console.log('Dias no mês:', daysInMonth)
+  console.log('Previsão:', previsao)
+}
+
+      previsoes.push({
+        mes: allMonths[monthIndex],
+        valor: previsao,
+        crescimentoEsperado: crescimento,
+      })
+    }
+    
 
     setPrevisaoVendas(previsoes)
-  }, [filteredSales, previousSales])
+    setMesSelecionadoPrevisao(allMonths[currentMonth])
+    
+  }, [filteredSales, selectedYear])
 
 
   useEffect(() => {
@@ -254,7 +333,7 @@ export default function Dashboard() {
               <User className="ml-auto w-4 h-4" />
             </div>
             <CardDescription>
-              {selectedYear === 'all' ? 'Todos os anos' : `Ano ${selectedYear}`} • {selectedBranch === 'all' ? 'Todas as filiais' : branchsData.find(b => b.cnpj === selectedBranch)?.name || selectedBranch}
+              {'Total de Filiais Cadastradas'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -310,7 +389,7 @@ export default function Dashboard() {
       <div className="flex justify-between text-sm mt-2">
         <span>{previsaoMesSelecionado.mes}:</span>
         <span className="font-medium">
-          R$ {previsaoMesSelecionado.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          R$ {previsaoMesSelecionado.valor.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}
           <span
             className={`ml-2 text-xs ${
               previsaoMesSelecionado.crescimentoEsperado >= 0
@@ -318,7 +397,7 @@ export default function Dashboard() {
                 : 'text-red-500'
             }`}
           >
-            ({previsaoMesSelecionado.crescimentoEsperado.toFixed(2)}%)
+            
           </span>
         </span>
       </div>
