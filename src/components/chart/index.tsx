@@ -34,7 +34,7 @@ export default function ChartOverview({ data }: ChartOverviewProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg sm:text-xl text-gray-800">
-            Overview Histórico
+            Vendas
           </CardTitle>
           <DollarSign className="w-5 h-5" />
         </div>

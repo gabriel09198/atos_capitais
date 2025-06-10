@@ -37,7 +37,7 @@ export default function ChartMetas({ data, year }: ChartMetasProps) {
       <CardHeader>
         <div className="flex items-center justify-center">
           <CardTitle className="text-lg sm:text-xl text-gray-800">
-            Comparativo com Metas
+            Comparativo Vendas x Metas
           </CardTitle>
           <DollarSign className="ml-auto w-4 h-4" />
         </div>
@@ -68,7 +68,7 @@ export default function ChartMetas({ data, year }: ChartMetasProps) {
                 dataKey="atual"
                 stroke="#2563eb"
                 strokeWidth={3}
-                name={`Valor (${labelAno})`}
+                name={`Vendas (${labelAno})`}
                 dot={{ r: 4 }}
               />
               <Line

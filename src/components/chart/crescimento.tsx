@@ -9,13 +9,14 @@ import {
 } from '../ui/card'
 
 import {
-  ComposedChart,
+  LineChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Legend
 } from 'recharts'
 
 import { useMemo } from 'react'
@@ -27,23 +28,34 @@ interface CrescimentoData {
 
 interface ChartCrescimentoProps {
   data: CrescimentoData[]
+  year: string
 }
 
-export default function ChartCrescimento({ data }: ChartCrescimentoProps) {
+export default function ChartCrescimento({ data, year }: ChartCrescimentoProps) {
   const currentMonthName = new Date().toLocaleString('pt-BR', { month: 'long' }).toLowerCase()
+  const labelAno = year === 'all' ? 'Todos os anos' : year
 
   const processedData = useMemo(() => {
     const currentMonthIndex = data.findIndex(item =>
       item.month.toLowerCase() === currentMonthName
     )
 
-    if (currentMonthIndex === -1) return data
+    return data.map((item, index) => {
+      const isFutureMonth = index > currentMonthIndex
+      const crescimentoVendas = isFutureMonth ? null : item.crescimento
+      
+      const crescimentoSobreMeta = isFutureMonth ? null : 
+        ((1 + item.crescimento/100) / 1.05 - 1) * 100
 
-    return data.map((item, index) => ({
-      ...item,
-      crescimento: index > currentMonthIndex ? 0 : item.crescimento
-    }))
-  }, [data, currentMonthName])
+      return {
+        month: item.month,
+        crescimento: crescimentoVendas,
+        sobreMeta:crescimentoSobreMeta !== null 
+        ? parseFloat(crescimentoSobreMeta.toFixed(2)) 
+        : null
+      }
+    })
+  }, [data, currentMonthName, year])
 
   return (
     <Card className="w-full">
@@ -58,13 +70,14 @@ export default function ChartCrescimento({ data }: ChartCrescimentoProps) {
       <CardContent>
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={processedData}>
-              <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+            <LineChart data={processedData}>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey="month"
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
+                interval={0}
               />
               <YAxis
                 axisLine={false}
@@ -72,18 +85,32 @@ export default function ChartCrescimento({ data }: ChartCrescimentoProps) {
                 unit="%"
               />
               <Tooltip
-                formatter={(value: any, name: any) => [`${value.toFixed(2)}%`, 'Crescimento Vendas']}
+                formatter={(value: any, name: any) => {
+                  if (value === null) return ['-', name]
+                  return [`${Number(value).toFixed(2)}%`, name]
+                }}
                 labelFormatter={(label) => `Mês: ${label}`}
               />
+              <Legend />
               <Line
                 type="monotone"
                 dataKey="crescimento"
                 stroke="#10b981"
                 strokeWidth={3}
+                name="Crescimento x Vendas"
                 dot={{ r: 4 }}
-                name="Crescimento Vendas"
+                connectNulls={true}
               />
-            </ComposedChart>
+              <Line
+                type="monotone"
+                dataKey="sobreMeta"
+                stroke="#f91616"
+                strokeWidth={3}
+                name="Crescimento x Meta"
+                dot={{ r: 4 }}
+                connectNulls={true}
+              />
+            </LineChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
