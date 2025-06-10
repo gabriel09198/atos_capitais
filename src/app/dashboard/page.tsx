@@ -470,7 +470,7 @@ export default function Dashboard() {
 ) : selectedChart === 'metas' ? (
   <ChartMetas data={chartDataMetas} year={selectedYear} />
 ) : selectedChart === 'crescimento' ? (
-  <ChartCrescimento data={chartDataCrescimento} />
+  <ChartCrescimento data={chartDataCrescimento} year={selectedYear} />
 ) : null}
 
         </div>
