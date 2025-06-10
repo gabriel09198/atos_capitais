@@ -115,23 +115,25 @@ export default function Dashboard() {
   }, [salesData, selectedBranch])
 
   useEffect(() => {
-  if (filteredByBranch.length === 0) {
-    setVendaDia(0)
-    return
-  }
+    if (filteredByBranch.length === 0) {
+      setVendaDia(0)
+      setDataUltimaVenda(null)
+      return
+    }
 
-  const hoje = new Date()
-  const ano = hoje.getFullYear()
-  const mes = String(hoje.getMonth() + 1).padStart(2, '0')
-  const dia = String(hoje.getDate()).padStart(2, '0')
-  const dataHoje = `${ano}-${mes}-${dia}`
+    const datas = filteredByBranch.map(sale => sale.date)
+    const ultimaData = datas.sort((a, b) => (a > b ? -1 : 1))[0]
 
-  const vendasHoje = filteredByBranch.filter(sale => sale.date.startsWith(dataHoje))
-  const somaHoje = vendasHoje.reduce((acc, venda) => acc + Number(venda.value), 0)
+    const vendaHoje = filteredByBranch
+      .filter(sale => sale.date === ultimaData)
+      .reduce((acc, venda) => acc + Number(venda.value), 0)
 
-  setVendaDia(somaHoje)
-  setDataUltimaVenda(`${dia}/${mes}/${ano}`)
-}, [filteredByBranch])
+    setVendaDia(vendaHoje)
+
+    const [ano, mes, dia] = ultimaData.split('-')
+    const dataFormatada = `${dia}/${mes}/${ano}`
+    setDataUltimaVenda(dataFormatada)
+  }, [filteredByBranch])
 
   const filteredSales = useMemo(() => {
     return selectedYear === 'all'
@@ -335,11 +337,11 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-center">
-              <CardTitle className="text-lg sm:text-xl text-gray-800 select-none">Vendas do Dia</CardTitle>
+              <CardTitle className="text-lg sm:text-xl text-gray-800 select-none">Vendas Totais do último dia com registro  </CardTitle>
               <BadgeDollarSign className="ml-auto w-4 h-4" />
             </div>
             <CardDescription>
-              {new Date().toLocaleDateString('pt-BR')} • {selectedBranch === 'all' ? 'Todas as filiais' : branchsData.find(b => b.cnpj === selectedBranch)?.name || selectedBranch}
+              {dataUltimaVenda ?? 'Sem dados'} • {selectedBranch === 'all' ? 'Todas as filiais' : branchsData.find(b => b.cnpj === selectedBranch)?.name || selectedBranch}
             </CardDescription>
           </CardHeader>
           <CardContent>
