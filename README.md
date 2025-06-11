@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+✅ Como rodar o projeto `atos_capitais` localmente
 
-## Getting Started
+1. Instale o Node.js
+- Acesse: https://nodejs.org
+- Baixe a versão recomendada para seu sistema operacional e instale normalmente.
 
-First, run the development server:
+2. Baixe o projeto no GitHub
+- Acesse o repositório: https://github.com/gabriel09198/atos_capitais
+- Clique no botão verde "Code" > "Download ZIP"
+- Extraia o conteúdo em uma pasta local.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or BLABLABLAL
-bun dev
-```
+3. Instale o Visual Studio Code
+- Baixe em: https://code.visualstudio.com
+- Instale e abra o VS Code
 
-Open [http://localhost:3000/login](http://localhost:3000/login) with your browser to see the result.
+4. Abra o projeto no VS Code
+- No VS Code, clique em "File" > "Open Folder..."
+- Selecione a pasta extraída do projeto `atos_capitais`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+5. Instale as dependências
+- No VS Code, abra o terminal (atalho: Ctrl + ` ou vá em Terminal > New Terminal).
+- No terminal, execute o comando:
+  npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+6. Execute o projeto
+- Depois que as dependências forem instaladas, execute:
+  npm run dev
 
-## Learn More
+7. Acesse o sistema no navegador
+- Abra seu navegador de preferência (Chrome, Firefox, Edge, etc.)
+- Cole o seguinte endereço:
+  http://localhost:3000/login
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+✅ Pronto! O projeto estará rodando localmente e pronto para ser usado.
